@@ -1,0 +1,33 @@
+name: Send WhatsApp Messages Daily
+
+on:
+  schedule:
+    - cron: "0 5 * * *"   # run daily at 5AM UTC
+  workflow_dispatch:       # allows manual run
+
+jobs:
+  send_messages:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install Requests
+      run: pip install requests
+
+    - name: Run script
+      run: python send.py
+
+    - name: Commit updated state
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add state.json
+        git commit -m "Update state" || echo "No changes"
+        git push
